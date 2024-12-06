@@ -9,18 +9,32 @@ contract MooveNFT is ERC721URIStorage, Ownable {
 
   mapping(uint256 => uint256) public tokenPrices;
 
+  struct Auction {
+    uint256 tokenId;
+    uint256 endTime;
+    uint256 highestBid;
+    address payable highestBidder;
+    bool ended;
+  }
+
+  mapping(uint256 => Auction) public auctions;
+
   event NFTCreated(uint256 tokenId, address owner);
+  event NFTTransferred(uint256 tokenId, address from, address to);
   event BuyedNFT(address indexed owner, uint256 indexed id);
+  event AuctionCreated(uint256 tokenId, uint256 endTime);
+  event BidPlaced(uint256 tokenId, address bidder, uint256 bid);
+  event AuctionEnded(uint256 tokenId, address winner, uint256 amount);
 
   constructor() ERC721("MooveNFT", "MVE") Ownable(msg.sender) {}
 
   function createNFT(string memory _tokenURI, uint256 price) public onlyOwner {
-    _safeMint(owner(), tokenIdCounter);
+    _safeMint(address(this), tokenIdCounter);
     _setTokenURI(tokenIdCounter, _tokenURI);
 
     tokenPrices[tokenIdCounter] = price;
-
     tokenIdCounter++;
+
     emit NFTCreated(tokenIdCounter, msg.sender);
   }
 
@@ -34,8 +48,51 @@ contract MooveNFT is ERC721URIStorage, Ownable {
     require(_tokenId <= tokenIdCounter, "The NFT does not exist");
     require(msg.value >= tokenPrices[_tokenId], "Insufficient funds");
 
-    super.transferFrom(owner(), msg.sender, _tokenId);
+    _transfer(address(this), msg.sender, _tokenId);
+
     emit BuyedNFT(msg.sender, _tokenId);
+  }
+
+  function createAuction(uint256 _tokenId, uint256 duration) external onlyOwner {
+    require(_tokenId <= tokenIdCounter, "The NFT does not exist");
+
+    auctions[_tokenId] = Auction({
+      tokenId: _tokenId,
+      endTime: block.timestamp + duration,
+      highestBid: 0,
+      highestBidder: payable(address(0)),
+      ended: false
+    });
+
+    emit AuctionCreated(_tokenId, block.timestamp + duration);
+  }
+
+  function placeBid(uint256 _tokenId) external payable {
+    Auction storage auction = auctions[_tokenId];
+    require(block.timestamp < auction.endTime, "Auction ended");
+    require(msg.value > auction.highestBid, "Bid too low");
+
+    if (auction.highestBidder != address(0)) {
+      auction.highestBidder.transfer(auction.highestBid);
+    }
+
+    auction.highestBid = msg.value;
+    auction.highestBidder = payable(msg.sender);
+
+    emit BidPlaced(_tokenId, msg.sender, msg.value);
+  }
+
+  function endAuction(uint256 _tokenId) external {
+    Auction storage auction = auctions[_tokenId];
+    require(block.timestamp >= auction.endTime, "Auction not ended");
+    require(!auction.ended, "Auction already ended");
+
+    auction.ended = true;
+    if (auction.highestBidder != address(0)) {
+      _transfer(address(this), auction.highestBidder, _tokenId);
+    }
+
+    emit AuctionEnded(_tokenId, auction.highestBidder, auction.highestBid);
   }
 
   function withdraw() public onlyOwner {

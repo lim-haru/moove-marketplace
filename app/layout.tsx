@@ -2,6 +2,9 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
 
+import { headers } from "next/headers"
+import ContextProvider from "@/context"
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -18,14 +21,18 @@ export const metadata: Metadata = {
   description: "",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookies = (await headers()).get("cookie")
+
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ContextProvider cookies={cookies}>{children}</ContextProvider>
+      </body>
     </html>
   )
 }

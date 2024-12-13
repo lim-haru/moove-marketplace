@@ -3,8 +3,9 @@ pragma solidity ^0.8.27;
 
 import {ERC721URIStorage, ERC721} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-contract MooveNFT is ERC721URIStorage, Ownable {
+contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
   uint256 public tokenIdCounter;
 
   mapping(uint256 => uint256) public tokenPrices;

@@ -32,6 +32,10 @@ createAppKit({
     socials: ["google", "x", "discord"],
     emailShowWallets: true,
   },
+  themeMode: "light",
+  themeVariables: {
+    "--w3m-border-radius-master": "2px",
+  },
 })
 
 function ContextProvider({ children, cookies }: { children: ReactNode; cookies: string | null }) {

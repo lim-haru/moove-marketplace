@@ -1,7 +1,3 @@
 export default function Home() {
-  return (
-    <div>
-      <appkit-button />
-    </div>
-  )
+  return <div></div>
 }

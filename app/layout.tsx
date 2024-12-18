@@ -5,6 +5,8 @@ import "./globals.css"
 import { headers } from "next/headers"
 import ContextProvider from "@/context"
 
+import Navbar from "@/components/Navbar"
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -31,7 +33,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ContextProvider cookies={cookies}>{children}</ContextProvider>
+        <ContextProvider cookies={cookies}>
+          <Navbar />
+          {children}
+        </ContextProvider>
       </body>
     </html>
   )

@@ -17,7 +17,7 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="bg-white fixed w-full z-20 top-0 start-0 border-b border-gray-200">
+    <nav className="bg-white w-full z-20 top-0 start-0 border-b border-gray-200">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link href={links[0].path}>
           <Image src="moove-logo.svg" width={85} height={31.8} alt="Moove Logo" />

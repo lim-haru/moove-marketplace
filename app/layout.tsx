@@ -35,7 +35,9 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ContextProvider cookies={cookies}>
           <Navbar />
-          {children}
+          <div className="mx-auto max-w-screen-xl flex flex-col px-8 xl:px-0 py-8">
+            <div className="flex-grow">{children}</div>
+          </div>
         </ContextProvider>
       </body>
     </html>

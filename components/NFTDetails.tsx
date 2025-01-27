@@ -13,12 +13,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Diamond, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import BuyNFTButton from "@/components/BuyNFTButton"
-
-interface NFTMetadata {
-  name: string
-  image: string
-  description: string
-}
+import { NFTMetadata } from "@/types/mooveNFT"
 
 export default function NFTDetails({ tokenId }: { tokenId: string }) {
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null)
@@ -132,7 +127,7 @@ export default function NFTDetails({ tokenId }: { tokenId: string }) {
                   <div className="flex items-center gap-2">
                     <Diamond className="h-6 w-6 text-primary" />
                     <span className="text-3xl font-bold">
-                      {price.data && typeof price.data === "bigint" ? formatEther(price.data) : null} ETH
+                      {price.data && typeof price.data === "bigint" ? formatEther(price.data) : "-"} ETH
                     </span>
                   </div>
                 </div>

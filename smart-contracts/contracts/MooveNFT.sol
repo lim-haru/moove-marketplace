@@ -6,10 +6,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
-  uint256 public tokenIdCounter;
+  uint256 private tokenIdCounter;
 
-  mapping(uint256 => uint256) public tokenPrices;
+  mapping(uint256 => uint256) private tokenPrices;
 
+  uint256[] private auctionsIds;
   struct Auction {
     uint256 tokenId;
     uint256 endTime;
@@ -18,7 +19,7 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     bool ended;
   }
 
-  mapping(uint256 => Auction) public auctions;
+  mapping(uint256 => Auction) private auctions;
 
   event NFTCreated(uint256 tokenId, address owner);
   event NFTTransferred(uint256 tokenId, address from, address to);
@@ -64,6 +65,7 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
       highestBidder: payable(address(0)),
       ended: false
     });
+    auctionsIds.push(_tokenId);
 
     emit AuctionCreated(_tokenId, block.timestamp + duration);
   }
@@ -104,7 +106,11 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     return tokenIdCounter;
   }
 
-  function getAuctions(uint256 _tokenId) public view returns (Auction memory) {
+  function getAuctionsIds() public view returns (uint256[] memory) {
+    return auctionsIds;
+  }
+
+  function getAuction(uint256 _tokenId) public view returns (Auction memory) {
     return auctions[_tokenId];
   }
 

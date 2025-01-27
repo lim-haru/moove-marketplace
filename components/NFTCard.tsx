@@ -6,13 +6,9 @@ import { formatEther } from "viem"
 import { getJsonFromIPFS } from "@/lib/ipfs"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { AuctionData, NFTMetadata } from "@/types/mooveNFT"
 
-interface NFTMetadata {
-  name: string
-  image: string
-}
-
-export function NFTCard({ tokenId }: { tokenId: number }) {
+export function NFTCard({ tokenId, isAuction }: { tokenId: number; isAuction?: boolean }) {
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null)
 
   const price = useReadContract({
@@ -44,6 +40,13 @@ export function NFTCard({ tokenId }: { tokenId: number }) {
     fetchMetadata()
   }, [tokenURI.data])
 
+  const auction = useReadContract({
+    abi,
+    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    functionName: "getAuction",
+    args: isAuction ? [tokenId] : undefined,
+  }) as { data: AuctionData }
+
   return (
     <Link href={`/marketplace/${tokenId}`}>
       <Card className="w-[350px] md:w-[350px] lg:w-auto rounded-2xl shadow-lg">
@@ -60,11 +63,19 @@ export function NFTCard({ tokenId }: { tokenId: number }) {
         <CardHeader className="px-7">
           <CardTitle>{metadata?.name}</CardTitle>
         </CardHeader>
-        <CardContent className="px-7">
+        <CardContent className="px-7 flex justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-sm text-neutral-600 font-mono">Price</span>
-            <div className="font-medium">{price.data && typeof price.data === "bigint" ? formatEther(price.data) : null} ETH</div>
+            <div className="font-medium">{price.data && typeof price.data === "bigint" ? formatEther(price.data) : "-"} ETH</div>
           </div>
+          {isAuction && (
+            <div className="flex flex-col gap-1 items-end">
+              <span className="text-sm text-neutral-600 font-mono">Highest Bid</span>
+              <div className="font-medium">
+                {auction.data && typeof auction.data.highestBid === "bigint" ? formatEther(auction.data.highestBid) : "-"} ETH
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>

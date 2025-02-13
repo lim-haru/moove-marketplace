@@ -1,14 +1,14 @@
 import { useReadContract } from "wagmi"
-import { abi } from "@/smart-contracts/artifacts/contracts/MooveNFT.sol/MooveNFT.json"
+import { abi } from "@/abis/MooveNFT"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Image from "next/image"
 import { formatEther } from "viem"
 import { getJsonFromIPFS } from "@/lib/ipfs"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { AuctionData, NFTMetadata } from "@/types/mooveNFT"
+import { NFTMetadata } from "@/types/mooveNFT"
 
-export function NFTCard({ tokenId, isAuction }: { tokenId: number; isAuction?: boolean }) {
+export function NFTCard({ tokenId, isAuction }: { tokenId: bigint; isAuction?: boolean }) {
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null)
 
   const price = useReadContract({
@@ -45,10 +45,10 @@ export function NFTCard({ tokenId, isAuction }: { tokenId: number; isAuction?: b
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
     functionName: "getAuction",
     args: isAuction ? [tokenId] : undefined,
-  }) as { data: AuctionData }
+  })
 
   return (
-    <Link href={`/marketplace/${tokenId}`}>
+    <Link href={isAuction ? `/auctions/${tokenId}` : `/marketplace/${tokenId}`}>
       <Card className="w-[350px] md:w-[350px] lg:w-auto rounded-2xl shadow-lg">
         <CardContent className="p-0">
           {metadata?.image && (

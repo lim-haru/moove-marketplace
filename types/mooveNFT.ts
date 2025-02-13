@@ -3,11 +3,3 @@ export interface NFTMetadata {
   image: string
   description: string
 }
-
-export interface AuctionData {
-  tokenId: bigint
-  endTime: bigint
-  highestBid: bigint
-  highestBidder: `0x${string}`
-  ended: boolean
-}

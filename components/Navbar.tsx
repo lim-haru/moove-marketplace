@@ -20,7 +20,7 @@ export default function Navbar() {
     <nav className="bg-white w-full z-20 top-0 start-0 border-b border-gray-200">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link href={links[0].path}>
-          <Image src="moove-logo.svg" width={85} height={31.8} alt="Moove Logo" />
+          <Image src="/moove-logo.svg" width={85} height={31.8} alt="Moove Logo" />
         </Link>
         <div className="flex space-x-3 md:space-x-0 md:order-2 items-center">
           <appkit-button />

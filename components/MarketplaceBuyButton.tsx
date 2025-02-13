@@ -4,12 +4,12 @@ import { useWriteContract } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { abi } from "@/smart-contracts/artifacts/contracts/MooveNFT.sol/MooveNFT.json"
 
-interface NFTButtonProps {
-  tokenId: string
+interface MarketplaceBuyButtonProps {
+  tokenId: bigint
   price: bigint
   owner: string
 }
-export default function BuyNFTButton({ tokenId, price, owner }: NFTButtonProps) {
+export default function MarketplaceBuyButton({ tokenId, price, owner }: MarketplaceBuyButtonProps) {
   const { open } = useAppKit()
   const { isConnected } = useAppKitAccount()
   const { writeContract } = useWriteContract()
@@ -25,12 +25,13 @@ export default function BuyNFTButton({ tokenId, price, owner }: NFTButtonProps) 
   }
 
   return (
-    <>
-      {owner === process.env.NEXT_PUBLIC_CONTRACT_ADDRESS && (
-        <Button className="w-full" size="lg" onClick={isConnected ? () => buyNFT() : () => open()}>
-          {isConnected ? "Buy Now" : "Connect Wallet"}
-        </Button>
-      )}
-    </>
+    <Button
+      disabled={owner != process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}
+      className="w-full"
+      size="lg"
+      onClick={isConnected ? () => buyNFT() : () => open()}
+    >
+      {isConnected ? "Buy Now" : "Connect Wallet"}
+    </Button>
   )
 }

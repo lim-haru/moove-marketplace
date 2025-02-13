@@ -50,6 +50,9 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     require(_tokenId <= tokenIdCounter, "The NFT does not exist");
     require(msg.value >= tokenPrices[_tokenId], "Insufficient funds");
 
+    Auction storage auction = auctions[_tokenId];
+    require(auction.endTime == 0 || block.timestamp >= auction.endTime, "NFT is currently in auction");
+
     _transfer(address(this), msg.sender, _tokenId);
 
     emit BuyedNFT(msg.sender, _tokenId);

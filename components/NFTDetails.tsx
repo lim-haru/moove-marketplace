@@ -1,7 +1,7 @@
 "use client"
 
 import { useReadContract } from "wagmi"
-import { abi } from "@/smart-contracts/artifacts/contracts/MooveNFT.sol/MooveNFT.json"
+import { abi } from "@/abis/MooveNFT"
 import Image from "next/image"
 import { formatEther } from "viem"
 import { getJsonFromIPFS } from "@/lib/ipfs"
@@ -12,10 +12,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Diamond, ExternalLink } from "lucide-react"
 import Link from "next/link"
-import BuyNFTButton from "@/components/BuyNFTButton"
+import MarketplaceBuyButton from "@/components/MarketplaceBuyButton"
 import { NFTMetadata } from "@/types/mooveNFT"
+import { usePathname } from "next/navigation"
+import AuctionMakeOfferButton from "@/components/AuctionMakeOfferButton"
+import Countdown from "./Coutdown"
 
-export default function NFTDetails({ tokenId }: { tokenId: string }) {
+export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
+  const pathname = usePathname()
+  const isAuction = pathname.includes("auctions")
+
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null)
 
   const price = useReadContract({
@@ -73,6 +79,25 @@ export default function NFTDetails({ tokenId }: { tokenId: string }) {
     fetchMetadata()
   }, [tokenURI.data])
 
+  const auction = useReadContract({
+    abi,
+    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    functionName: "getAuction",
+    args: isAuction ? [tokenId] : undefined,
+  })
+
+  const timestamp = Date.now()
+  const isAuctionEnabled = isAuction && auction.isSuccess ? timestamp < auction.data.endTime : false
+
+  const formatDisplayedPrice = () => {
+    if (isAuction && auction.isSuccess) {
+      return formatEther(auction.data.highestBid)
+    } else if (!isAuction && price.isSuccess) {
+      return formatEther(price.data)
+    }
+    return "-"
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {metadata && price ? (
@@ -107,9 +132,9 @@ export default function NFTDetails({ tokenId }: { tokenId: string }) {
             <div>
               <div className="flex items-center justify-between mt-2">
                 <h1 className="text-3xl font-bold">{metadata?.name}</h1>
-                {owner.data === process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ? (
+                {(!isAuction && owner.data === process.env.NEXT_PUBLIC_CONTRACT_ADDRESS) || isAuctionEnabled ? (
                   <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 mr-2">
-                    On Sale
+                    {isAuctionEnabled ? "On Auction" : "On Sale"}
                   </Badge>
                 ) : (
                   <Badge variant="secondary" className="bg-red-500/10 text-red-500 mr-2">
@@ -122,21 +147,33 @@ export default function NFTDetails({ tokenId }: { tokenId: string }) {
 
             <div className="space-y-4">
               <div className="rounded-lg bg-muted p-6">
-                <div className="mb-4">
-                  <div className="text-sm text-muted-foreground">Current Price</div>
-                  <div className="flex items-center gap-2">
-                    <Diamond className="h-6 w-6 text-primary" />
-                    <span className="text-3xl font-bold">
-                      {price.data && typeof price.data === "bigint" ? formatEther(price.data) : "-"} ETH
-                    </span>
+                <div className="mb-4 flex justify-between">
+                  <div>
+                    <div className="text-sm text-muted-foreground">{isAuctionEnabled ? "Current Price" : "Price"}</div>
+                    <div className="flex items-center gap-2">
+                      <Diamond className="h-6 w-6 text-primary" />
+                      <span className="text-3xl font-bold">{formatDisplayedPrice()} ETH</span>
+                    </div>
                   </div>
+                  {isAuction && auction.isSuccess && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Auction ends</div>
+                      <Countdown targetTimestamp={auction.data.endTime} />
+                    </div>
+                  )}
                 </div>
-                {typeof tokenId === "string" && typeof price.data === "bigint" && typeof owner.data === "string" && (
-                  <BuyNFTButton tokenId={tokenId} price={price.data} owner={owner.data} />
-                )}
-                <Button variant="outline" className="mt-2 w-full" size="lg">
-                  Make Offer
-                </Button>
+                {tokenId &&
+                  price.isSuccess &&
+                  owner.isSuccess &&
+                  (isAuction && auction.isSuccess ? (
+                    <AuctionMakeOfferButton
+                      tokenId={tokenId}
+                      currentPrice={auction.data.highestBid}
+                      isAuctionEnabled={isAuctionEnabled}
+                    />
+                  ) : (
+                    <MarketplaceBuyButton tokenId={tokenId} price={price.data} owner={owner.data} />
+                  ))}
               </div>
 
               <Table>

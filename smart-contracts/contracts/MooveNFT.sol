@@ -6,6 +6,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
+  uint256 public constant MAX_AUCTION_DURATION = 30 days;
+
   uint256 private tokenIdCounter;
 
   mapping(uint256 => uint256) private tokenPrices;
@@ -58,13 +60,15 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     emit BuyedNFT(msg.sender, _tokenId);
   }
 
-  function createAuction(uint256 _tokenId, uint256 duration) external onlyOwner {
+  function createAuction(uint256 _tokenId, uint256 duration, uint256 startingPrice) external onlyOwner {
     require(_tokenId <= tokenIdCounter, "The NFT does not exist");
+    require(auctions[_tokenId].endTime == 0 || auctions[_tokenId].ended, "NFT is already in auction");
+    require(duration <= MAX_AUCTION_DURATION, "Auction duration exceeds maximum limit");
 
     auctions[_tokenId] = Auction({
       tokenId: _tokenId,
       endTime: block.timestamp + duration,
-      highestBid: 0,
+      highestBid: startingPrice,
       highestBidder: payable(address(0)),
       ended: false
     });

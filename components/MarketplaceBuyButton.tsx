@@ -7,9 +7,9 @@ import { abi } from "@/smart-contracts/artifacts/contracts/MooveNFT.sol/MooveNFT
 interface MarketplaceBuyButtonProps {
   tokenId: bigint
   price: bigint
-  owner: string
+  isSaleEnabled: boolean
 }
-export default function MarketplaceBuyButton({ tokenId, price, owner }: MarketplaceBuyButtonProps) {
+export default function MarketplaceBuyButton({ tokenId, price, isSaleEnabled }: MarketplaceBuyButtonProps) {
   const { open } = useAppKit()
   const { isConnected } = useAppKitAccount()
   const { writeContract } = useWriteContract()
@@ -25,12 +25,7 @@ export default function MarketplaceBuyButton({ tokenId, price, owner }: Marketpl
   }
 
   return (
-    <Button
-      disabled={owner != process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}
-      className="w-full"
-      size="lg"
-      onClick={isConnected ? () => buyNFT() : () => open()}
-    >
+    <Button disabled={!isSaleEnabled} className="w-full" size="lg" onClick={isConnected ? () => buyNFT() : () => open()}>
       {isConnected ? "Buy Now" : "Connect Wallet"}
     </Button>
   )

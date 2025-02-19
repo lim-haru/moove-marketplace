@@ -7,6 +7,7 @@ import { getJsonFromIPFS } from "@/lib/ipfs"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { NFTMetadata } from "@/types/mooveNFT"
+import Countdown from "./Coutdown"
 
 export function NFTCard({ tokenId, isAuction }: { tokenId: bigint; isAuction?: boolean }) {
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null)
@@ -60,21 +61,26 @@ export function NFTCard({ tokenId, isAuction }: { tokenId: bigint; isAuction?: b
             />
           )}
         </CardContent>
-        <CardHeader className="px-7">
+        <CardHeader className="px-7 lg:px-6">
           <CardTitle>{metadata?.name}</CardTitle>
         </CardHeader>
-        <CardContent className="px-7 flex justify-between">
-          <div className="flex flex-col gap-1">
-            <span className="text-sm text-neutral-600 font-mono">Price</span>
-            <div className="font-medium">{price.data && typeof price.data === "bigint" ? formatEther(price.data) : "-"} ETH</div>
-          </div>
-          {isAuction && (
-            <div className="flex flex-col gap-1 items-end">
-              <span className="text-sm text-neutral-600 font-mono">Highest Bid</span>
-              <div className="font-medium">
-                {auction.data && typeof auction.data.highestBid === "bigint" ? formatEther(auction.data.highestBid) : "-"} ETH
-              </div>
+        <CardContent className="px-7 lg:px-6 flex justify-between">
+          {!isAuction ? (
+            <div className="flex flex-col gap-1">
+              <span className="text-sm text-neutral-600 font-mono">Price</span>
+              <div className="font-medium">{price.isSuccess ? formatEther(price.data) : "-"} ETH</div>
             </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-1">
+                <span className="text-sm text-neutral-600 font-mono">Current Price</span>
+                <div className="font-medium">{auction.isSuccess ? formatEther(auction.data?.highestBid) : "-"} ETH</div>
+              </div>
+              <div className="flex flex-col gap-1 items-end">
+                <span className="text-sm text-neutral-600 font-mono">Auction ends</span>
+                <Countdown targetTimestamp={auction.isSuccess && auction.data.endTime} size="small" />
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -388,6 +388,19 @@ export const abi = [
     type: "event",
   },
   {
+    inputs: [],
+    name: "MAX_AUCTION_DURATION",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -465,6 +478,11 @@ export const abi = [
       {
         internalType: "uint256",
         name: "duration",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "startingPrice",
         type: "uint256",
       },
     ],
@@ -572,6 +590,19 @@ export const abi = [
   {
     inputs: [],
     name: "getAuctionsIds",
+    outputs: [
+      {
+        internalType: "uint256[]",
+        name: "",
+        type: "uint256[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAvailableNFTs",
     outputs: [
       {
         internalType: "uint256[]",

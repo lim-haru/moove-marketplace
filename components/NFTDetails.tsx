@@ -17,6 +17,7 @@ import { NFTMetadata } from "@/types/mooveNFT"
 import { usePathname } from "next/navigation"
 import AuctionMakeOfferButton from "@/components/AuctionMakeOfferButton"
 import Countdown from "./Coutdown"
+import { shortenAddress } from "@/lib/utils"
 
 export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   const pathname = usePathname()
@@ -155,7 +156,9 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
         <div className="space-y-6">
           <div>
             <div className="flex items-center justify-between mt-2">
-              <h1 className="text-3xl font-bold">{metadata?.name}</h1>
+              <h1 className="text-3xl font-bold">
+                {metadata?.name} #{tokenId}
+              </h1>
               {isSaleEnabled || isAuctionEnabled ? (
                 <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 mr-2">
                   {isAuctionEnabled ? "On Auction" : "On Sale"}
@@ -203,7 +206,7 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                 <TableRow>
                   <TableCell className="font-medium">Owner</TableCell>
                   <TableCell className="text-right">
-                    <span className="font-mono text-sm">{owner.data.slice(0, 6) + "..." + owner.data.slice(-4)}</span>
+                    <span className="font-mono text-sm">{shortenAddress(owner.data)}</span>
                   </TableCell>
                 </TableRow>
                 <TableRow>

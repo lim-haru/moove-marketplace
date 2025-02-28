@@ -14,7 +14,7 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
 
   uint256[] private availableNFTList;
   uint256[] private auctionsIds;
-  
+
   struct Auction {
     uint256 tokenId;
     uint256 endTime;
@@ -25,12 +25,11 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
 
   mapping(uint256 => Auction) private auctions;
 
-  event NFTCreated(uint256 tokenId, address owner);
-  event NFTTransferred(uint256 tokenId, address from, address to);
-  event BuyedNFT(address indexed owner, uint256 indexed id);
-  event AuctionCreated(uint256 tokenId, uint256 endTime);
-  event BidPlaced(uint256 tokenId, address bidder, uint256 bid);
-  event AuctionEnded(uint256 tokenId, address winner, uint256 amount);
+  event NFTCreated(uint256 indexed tokenId, address indexed owner);
+  event BoughtNFT(address indexed owner, uint256 indexed tokenId, uint256 price);
+  event NFTAuctionCreated(uint256 indexed tokenId, uint256 endTime);
+  event BidPlaced(uint256 indexed tokenId, address indexed bidder, uint256 bid);
+  event NFTAuctionEnded(uint256 indexed tokenId, address indexed winner, uint256 amount);
 
   constructor() ERC721("MooveNFT", "MVE") Ownable(msg.sender) {}
 
@@ -72,7 +71,7 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     _transfer(address(this), msg.sender, _tokenId);
     _removeFromAvailableList(_tokenId);
 
-    emit BuyedNFT(msg.sender, _tokenId);
+    emit BoughtNFT(msg.sender, _tokenId, tokenPrices[_tokenId]);
   }
 
   function createAuction(uint256 _tokenId, uint256 duration, uint256 startingPrice) external onlyOwner {
@@ -91,7 +90,7 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
 
     _removeFromAvailableList(_tokenId);
 
-    emit AuctionCreated(_tokenId, block.timestamp + duration);
+    emit NFTAuctionCreated(_tokenId, block.timestamp + duration);
   }
 
   function placeBid(uint256 _tokenId) external payable {
@@ -117,6 +116,9 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     auction.ended = true;
     if (auction.highestBidder != address(0)) {
       _transfer(address(this), auction.highestBidder, _tokenId);
+        emit NFTAuctionEnded(_tokenId, auction.highestBidder, auction.highestBid);
+    } else {
+        emit NFTAuctionEnded(_tokenId, address(0), 0);
     }
 
     // Remove _tokenId from auctionIds
@@ -129,8 +131,6 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     }
 
     delete auctions[_tokenId];
-
-    emit AuctionEnded(_tokenId, auction.highestBidder, auction.highestBid);
   }
 
   function getPrice(uint256 _tokenId) public view returns (uint256) {

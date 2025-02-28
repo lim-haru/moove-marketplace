@@ -62,7 +62,9 @@ export function NFTCard({ tokenId, isAuction }: { tokenId: bigint; isAuction?: b
           )}
         </CardContent>
         <CardHeader className="px-7 lg:px-6">
-          <CardTitle>{metadata?.name}</CardTitle>
+          <CardTitle>
+            {metadata?.name} #{tokenId}
+          </CardTitle>
         </CardHeader>
         <CardContent className="px-7 lg:px-6 flex justify-between">
           {!isAuction ? (

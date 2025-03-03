@@ -26,7 +26,7 @@ describe("MooveNFT", function () {
     return tokenId
   }
 
-  it("Deve creare un nuovo NFT", async function n() {
+  it("Should create a new NFT", async function () {
     const { mooveNFT } = await loadFixture(deploy)
 
     const tokenId = await createNFT()
@@ -34,7 +34,7 @@ describe("MooveNFT", function () {
     expect(await mooveNFT.ownerOf(tokenId)).to.equal(await mooveNFT.getAddress())
   })
 
-  it("Deve permettere l'acquisto di un NFT", async function () {
+  it("Should allow the purchase of an NFT", async function () {
     const { mooveNFT, addr1 } = await loadFixture(deploy)
 
     const tokenId = await createNFT()
@@ -44,39 +44,39 @@ describe("MooveNFT", function () {
     expect(await mooveNFT.ownerOf(tokenId)).to.equal(addr1.address)
   })
 
-  it("Deve creare un'asta", async function () {
+  it("Should create an auction", async function () {
     const { mooveNFT, ONE_DAY_IN_SECS } = await loadFixture(deploy)
 
     const tokenId = await createNFT()
 
-    await mooveNFT.createAuction(tokenId, ONE_DAY_IN_SECS)
+    await mooveNFT.createAuction(tokenId, ONE_DAY_IN_SECS, parseUnits("0.00001", "ether"))
 
-    const auction = await mooveNFT.auctions(0)
+    const auction = await mooveNFT.getAuction(0)
     expect(auction.tokenId).to.equal(tokenId)
 
     const unlockTime = (await time.latest()) + ONE_DAY_IN_SECS
     expect(auction.endTime).to.equal(unlockTime)
   })
 
-  it("Deve permettere di piazzare offerte", async function () {
+  it("Should allow you to place offers", async function () {
     const { mooveNFT, ONE_DAY_IN_SECS, addr1 } = await loadFixture(deploy)
 
     const tokenId = await createNFT()
 
-    await mooveNFT.createAuction(tokenId, ONE_DAY_IN_SECS)
+    await mooveNFT.createAuction(tokenId, ONE_DAY_IN_SECS, parseUnits("0.00001", "ether"))
     const bid = parseUnits("0.00005", "ether")
     await mooveNFT.connect(addr1).placeBid(tokenId, { value: bid })
 
-    const auction = await mooveNFT.auctions(0)
+    const auction = await mooveNFT.getAuction(0)
     expect(auction.highestBid).to.equal(bid)
   })
 
-  it("Deve permettere di concludere l'asta", async function () {
+  it("Should allow the auction to conclude", async function () {
     const { mooveNFT, ONE_DAY_IN_SECS, addr1 } = await loadFixture(deploy)
 
     const tokenId = await createNFT()
 
-    await mooveNFT.createAuction(tokenId, ONE_DAY_IN_SECS)
+    await mooveNFT.createAuction(tokenId, ONE_DAY_IN_SECS, parseUnits("0.00001", "ether"))
     const bid = parseUnits("0.00005", "ether")
     await mooveNFT.connect(addr1).placeBid(tokenId, { value: bid })
 

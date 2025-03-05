@@ -1,6 +1,6 @@
 import { cookieStorage, createStorage } from "@wagmi/core"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
-import { mainnet, arbitrum } from "@reown/appkit/networks"
+import { sepolia, holesky } from "@reown/appkit/networks"
 import { defineChain } from "@reown/appkit/networks"
 
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID
@@ -31,13 +31,11 @@ const customNetwork = isDevelopment
       blockExplorers: {
         default: { name: "Explorer", url: "BLOCK_EXPLORER_URL" },
       },
-      contracts: {
-        // Add the contracts here
-      },
+      contracts: {},
     })
   : null
 
-export const networks = [mainnet, arbitrum, ...(customNetwork ? [customNetwork] : [])]
+export const networks = [sepolia, holesky, ...(customNetwork ? [customNetwork] : [])]
 
 //Set up the Wagmi Adapter (Config)
 export const wagmiAdapter = new WagmiAdapter({

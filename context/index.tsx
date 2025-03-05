@@ -3,7 +3,7 @@
 import { wagmiAdapter, projectId } from "@/config"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createAppKit } from "@reown/appkit/react"
-import { mainnet, arbitrum } from "@reown/appkit/networks"
+import { sepolia, holesky } from "@reown/appkit/networks"
 import React, { type ReactNode } from "react"
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi"
 import { defineChain } from "@reown/appkit/networks"
@@ -43,9 +43,7 @@ const customNetwork = isDevelopment
       blockExplorers: {
         default: { name: "Explorer", url: "BLOCK_EXPLORER_URL" },
       },
-      contracts: {
-        // Add the contracts here
-      },
+      contracts: {},
     })
   : null
 
@@ -53,8 +51,8 @@ const customNetwork = isDevelopment
 createAppKit({
   adapters: [wagmiAdapter],
   projectId,
-  networks: [mainnet, arbitrum, ...(customNetwork ? [customNetwork] : [])],
-  defaultNetwork: mainnet,
+  networks: [sepolia, holesky, ...(customNetwork ? [customNetwork] : [])],
+  defaultNetwork: sepolia,
   metadata: metadata,
   features: {
     email: true,

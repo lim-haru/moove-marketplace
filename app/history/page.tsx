@@ -179,156 +179,172 @@ export default function HistoryPage() {
 
         <TabsContent value="purchases" className="space-y-4">
           <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>From</TableHead>
-                  <TableHead>To</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {purchaseEvents.map((event, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-                          {event.image ? (
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${event.image}`}
-                              alt={event.name || "NFT"}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Skeleton className="w-[48px] h-[48px] rounded-lg" />
-                          )}
-                        </div>
-                        <div className="font-medium">
-                          {event.name ? (
-                            `${event.name} #${event.args.tokenId}`
-                          ) : (
-                            <Skeleton className="w-[150px] h-[20px] rounded-full" />
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Diamond className="h-4 w-4" />
-                        {event.args.price ? (
-                          <span>{formatEther(event.args.price)} ETH</span>
-                        ) : (
-                          <Skeleton className="w-[35px] h-[20px] rounded-full" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-mono text-sm">{shortenAddress(event.address)}</span>
-                    </TableCell>
-                    <TableCell>
-                      {event.args.owner ? (
-                        <span className="font-mono text-sm">{shortenAddress(event.args.owner)}</span>
-                      ) : (
-                        <Skeleton className="w-[120px] h-[20px] rounded-full" />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm text-muted-foreground">{event.date}</div>
-                    </TableCell>
-                    <TableCell>
-                      <Link href={event.txLink} target="_blank">
-                        <Button variant="ghost" size="sm">
-                          View <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </TableCell>
+            {purchaseEvents.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Item</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>From</TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {purchaseEvents.map((event, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+                            {event.image ? (
+                              <Image
+                                src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${event.image}`}
+                                alt={event.name || "NFT"}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <Skeleton className="w-[48px] h-[48px] rounded-lg" />
+                            )}
+                          </div>
+                          <div className="font-medium">
+                            {event.name ? (
+                              `${event.name} #${event.args.tokenId}`
+                            ) : (
+                              <Skeleton className="w-[150px] h-[20px] rounded-full" />
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Diamond className="h-4 w-4" />
+                          {event.args.price ? (
+                            <span>{formatEther(event.args.price)} ETH</span>
+                          ) : (
+                            <Skeleton className="w-[35px] h-[20px] rounded-full" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono text-sm">{shortenAddress(event.address)}</span>
+                      </TableCell>
+                      <TableCell>
+                        {event.args.owner ? (
+                          <span className="font-mono text-sm">{shortenAddress(event.args.owner)}</span>
+                        ) : (
+                          <Skeleton className="w-[120px] h-[20px] rounded-full" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm text-muted-foreground">{event.date}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Link href={event.txLink} target="_blank">
+                          <Button variant="ghost" size="sm">
+                            View <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-center text-muted-foreground py-6">No purchase transactions found.</p>
+            )}
           </Card>
         </TabsContent>
 
         <TabsContent value="offers" className="space-y-4">
           <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Offer Amount</TableHead>
-                  <TableHead>Highest Bid</TableHead>
-                  <TableHead>Expiration</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {bidEvents.map((event, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-                          {event.image ? (
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${event.image}`}
-                              alt={event.name || "NFT"}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Skeleton className="w-[48px] h-[48px] rounded-lg" />
-                          )}
-                        </div>
-                        <div className="font-medium">
-                          {event.name ? (
-                            `${event.name} #${event.args.tokenId}`
-                          ) : (
-                            <Skeleton className="w-[150px] h-[20px] rounded-full" />
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Diamond className="h-4 w-4" />
-                        {event.args.bid ? (
-                          <span>{formatEther(event.args.bid)} ETH</span>
-                        ) : (
-                          <Skeleton className="w-[35px] h-[20px] rounded-full" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Diamond className="h-4 w-4" />
-                        {event.auction.highestBid ? (
-                          <span>{formatEther(event.auction.highestBid)} ETH</span>
-                        ) : (
-                          <Skeleton className="w-[35px] h-[20px] rounded-full" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="justify-items-start">
-                      <Countdown targetTimestamp={event.auction.endTime} size="small" />
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{Date.now() / 1000 < event.auction.endTime ? "Active" : "Ended"}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Link href={event.txLink} target="_blank">
-                        <Button variant="ghost" size="sm">
-                          View <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </TableCell>
+            {bidEvents.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Item</TableHead>
+                    <TableHead>Offer Amount</TableHead>
+                    <TableHead>Highest Bid</TableHead>
+                    <TableHead>Expiration</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {bidEvents.map((event, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+                            {event.image ? (
+                              <Image
+                                src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${event.image}`}
+                                alt={event.name || "NFT"}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <Skeleton className="w-[48px] h-[48px] rounded-lg" />
+                            )}
+                          </div>
+                          <div className="font-medium">
+                            {event.name ? (
+                              `${event.name} #${event.args.tokenId}`
+                            ) : (
+                              <Skeleton className="w-[150px] h-[20px] rounded-full" />
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Diamond className="h-4 w-4" />
+                          {event.args.bid ? (
+                            <span>{formatEther(event.args.bid)} ETH</span>
+                          ) : (
+                            <Skeleton className="w-[35px] h-[20px] rounded-full" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Diamond className="h-4 w-4" />
+                          {event.auction.highestBid ? (
+                            <span>{formatEther(event.auction.highestBid)} ETH</span>
+                          ) : (
+                            <Skeleton className="w-[35px] h-[20px] rounded-full" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="justify-items-start">
+                        {event.auction.endTime ? (
+                          <Countdown targetTimestamp={event.auction.endTime} size="small" />
+                        ) : (
+                          <Skeleton className="w-[115px] h-[36px] rounded-full" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {event.auction.endTime ? (
+                          <Badge variant="secondary">{Date.now() / 1000 < event.auction.endTime ? "Active" : "Ended"}</Badge>
+                        ) : (
+                          <Skeleton className="w-[60px] h-[22px] rounded-full" />
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Link href={event.txLink} target="_blank">
+                          <Button variant="ghost" size="sm">
+                            View <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <p className="text-center text-muted-foreground py-6">No bid transactions found.</p>
+            )}
           </Card>
         </TabsContent>
       </Tabs>

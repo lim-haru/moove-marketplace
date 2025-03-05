@@ -18,6 +18,7 @@ import { usePathname } from "next/navigation"
 import AuctionMakeOfferButton from "@/components/AuctionMakeOfferButton"
 import Countdown from "./Coutdown"
 import { shortenAddress } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   const pathname = usePathname()
@@ -65,15 +66,6 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
     args: ["0x80ac58cd"],
   })
 
-  const isLoading =
-    price.isLoading ||
-    tokenURI.isLoading ||
-    owner.isLoading ||
-    name.isLoading ||
-    symbol.isLoading ||
-    isERC721.isLoading ||
-    (!metadata && tokenURI.data)
-
   useEffect(() => {
     const fetchMetadata = async () => {
       if (!tokenURI.data) return
@@ -107,23 +99,6 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   const timestamp = Date.now() / 1000
   const isAuctionEnabled = isAuction && auction.isSuccess ? timestamp < auction.data.endTime : false
 
-  const formatDisplayedPrice = () => {
-    if (isAuction && auction.isSuccess) {
-      return formatEther(auction.data.highestBid)
-    } else if (!isAuction && price.isSuccess) {
-      return formatEther(price.data)
-    }
-    return "-"
-  }
-
-  if (isLoading) {
-    return <p className="text-xl font-semibold text-center m-10">Loading NFT...</p>
-  }
-
-  if (!metadata || !price.isSuccess || !owner.isSuccess) {
-    return <p className="text-xl font-semibold text-center m-10">Failed to load NFT</p>
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid gap-8 md:grid-cols-2">
@@ -131,7 +106,7 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
           <Card className="overflow-hidden border-0 bg-black/5 dark:bg-white/5">
             <CardContent className="p-0">
               <div className="relative aspect-square">
-                {metadata?.image && (
+                {metadata?.image ? (
                   <Image
                     src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${metadata.image}`}
                     alt={metadata.name}
@@ -139,12 +114,14 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                     className="object-cover"
                     priority
                   />
+                ) : (
+                  <Skeleton className="w-full h-full" />
                 )}
               </div>
             </CardContent>
           </Card>
           <div className="flex items-center justify-between">
-            <Link href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${metadata?.image}`} target="_blank">
+            <Link href={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${metadata?.image || ""}`} target="_blank">
               <Button variant="outline" size="sm">
                 <ExternalLink className="mr-2 h-4 w-4" />
                 View on IPFS
@@ -157,7 +134,13 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
           <div>
             <div className="flex items-center justify-between mt-2">
               <h1 className="text-3xl font-bold">
-                {metadata?.name} #{tokenId}
+                {metadata?.name ? (
+                  <>
+                    {metadata.name} #{tokenId}
+                  </>
+                ) : (
+                  <Skeleton className="w-[200px] h-[36px] rounded-full" />
+                )}
               </h1>
               {isSaleEnabled || isAuctionEnabled ? (
                 <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 mr-2">
@@ -169,7 +152,9 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                 </Badge>
               )}
             </div>
-            <p className="mt-2 text-muted-foreground">{metadata?.description}</p>
+            <div className="mt-2 text-muted-foreground">
+              {metadata?.description ? metadata.description : <Skeleton className="w-full h-[20px] rounded-full" />}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -179,17 +164,28 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                   <div className="text-sm text-muted-foreground">{isAuctionEnabled ? "Current Price" : "Price"}</div>
                   <div className="flex items-center gap-2">
                     <Diamond className="h-6 w-6 text-primary" />
-                    <span className="text-3xl font-bold">{formatDisplayedPrice()} ETH</span>
+                    {(isAuction && auction.isSuccess) || (!isAuction && price.isSuccess) ? (
+                      <span className="text-3xl font-bold">
+                        {isAuction ? formatEther(auction.data!.highestBid) : formatEther(price.data!)} ETH
+                      </span>
+                    ) : (
+                      <Skeleton className="w-[130px] h-[36px] rounded-full bg-gray-200" />
+                    )}
                   </div>
                 </div>
                 {isAuction && (
                   <div>
                     <div className="text-sm text-muted-foreground pl-1">Auction ends</div>
-                    <Countdown targetTimestamp={auction.isSuccess && auction.data.endTime} size="large" />
+                    {auction.isSuccess ? (
+                      <Countdown targetTimestamp={auction.data.endTime} size="large" />
+                    ) : (
+                      <Skeleton className="w-[230px] h-[56px] rounded-full bg-gray-200" />
+                    )}
                   </div>
                 )}
               </div>
               {tokenId.toString() &&
+                price.isSuccess &&
                 (isAuction && auction.isSuccess ? (
                   <AuctionMakeOfferButton
                     tokenId={tokenId}
@@ -206,7 +202,13 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                 <TableRow>
                   <TableCell className="font-medium">Owner</TableCell>
                   <TableCell className="text-right">
-                    <span className="font-mono text-sm">{shortenAddress(owner.data)}</span>
+                    <span className="font-mono text-sm">
+                      {owner.isSuccess ? (
+                        <span className="font-mono text-sm">{shortenAddress(owner.data)}</span>
+                      ) : (
+                        <Skeleton className="w-[120px] h-[20px] rounded-full justify-self-end" />
+                      )}
+                    </span>
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -217,15 +219,29 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Collection</TableCell>
-                  <TableCell className="text-right">{name.data}</TableCell>
+                  <TableCell className="text-right">
+                    {name.isSuccess ? name.data : <Skeleton className="w-[100px] h-[20px] rounded-full justify-self-end" />}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Symbol</TableCell>
-                  <TableCell className="text-right">{symbol.data} </TableCell>
+                  <TableCell className="text-right">
+                    {symbol.isSuccess ? symbol.data : <Skeleton className="w-[50px] h-[20px] rounded-full justify-self-end" />}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Token Standard</TableCell>
-                  <TableCell className="text-right">{isERC721.data ? "ERC721" : "Unknown"}</TableCell>
+                  <TableCell className="text-right">
+                    {isERC721.isSuccess ? (
+                      isERC721.data ? (
+                        "ERC721"
+                      ) : (
+                        "Unknown"
+                      )
+                    ) : (
+                      <Skeleton className="w-[60px] h-[20px] rounded-full justify-self-end" />
+                    )}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

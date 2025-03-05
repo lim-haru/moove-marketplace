@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 
 interface CountdownProps {
-  targetTimestamp?: bigint | false
+  targetTimestamp: bigint
   size?: "small" | "large"
 }
 
@@ -16,8 +16,6 @@ export default function Countdown({ targetTimestamp, size = "large" }: Countdown
   })
 
   useEffect(() => {
-    if (!targetTimestamp) return
-
     const interval = setInterval(() => {
       const now = BigInt(Math.round(Date.now() / 1000))
       const distance = Number(targetTimestamp - now)
@@ -26,7 +24,7 @@ export default function Countdown({ targetTimestamp, size = "large" }: Countdown
         const days = Math.floor(distance / (60 * 60 * 24))
         const hours = Math.floor((distance % (60 * 60 * 24)) / (60 * 60))
         const minutes = Math.floor((distance % (60 * 60)) / 60)
-        const seconds = Math.floor((distance % 60) / 1000)
+        const seconds = Math.floor(distance % 60)
 
         setTimeLeft({ days, hours, minutes, seconds })
       } else {

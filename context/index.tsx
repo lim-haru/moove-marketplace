@@ -62,6 +62,8 @@ createAppKit({
   themeMode: "light",
   themeVariables: {
     "--w3m-border-radius-master": "2px",
+    "--w3m-accent": "#111827",
+    "--w3m-color-mix-strength": 5,
   },
 })
 

@@ -19,6 +19,7 @@ import AuctionMakeOfferButton from "@/components/AuctionMakeOfferButton"
 import Countdown from "./Coutdown"
 import { shortenAddress } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   const pathname = usePathname()
@@ -197,54 +198,93 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                 ))}
             </div>
 
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Owner</TableCell>
-                  <TableCell className="text-right">
-                    <span className="font-mono text-sm">
-                      {owner.isSuccess ? (
-                        <span className="font-mono text-sm">{shortenAddress(owner.data)}</span>
+            <Accordion type="single" collapsible className="w-full" defaultValue="traits">
+              <AccordionItem value="traits">
+                <AccordionTrigger className="hover:no-underline">Traits</AccordionTrigger>
+                <AccordionContent>
+                  <Table>
+                    <TableBody>
+                      {metadata?.attributes ? (
+                        metadata?.attributes.map(
+                          (attribute) =>
+                            attribute.trait_type &&
+                            attribute.value && (
+                              <TableRow key={attribute.trait_type}>
+                                <TableCell className="font-medium">{attribute.trait_type}</TableCell>
+                                <TableCell className="text-right">{attribute.value}</TableCell>
+                              </TableRow>
+                            )
+                        )
                       ) : (
-                        <Skeleton className="w-[120px] h-[20px] rounded-full justify-self-end" />
+                        <TableRow>
+                          <TableCell colSpan={2}>
+                            <Skeleton className="w-full h-[30px] rounded-full" />
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </span>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Token ID</TableCell>
-                  <TableCell className="text-right">
-                    <span className="font-mono text-sm">#{tokenId}</span>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Collection</TableCell>
-                  <TableCell className="text-right">
-                    {name.isSuccess ? name.data : <Skeleton className="w-[100px] h-[20px] rounded-full justify-self-end" />}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Symbol</TableCell>
-                  <TableCell className="text-right">
-                    {symbol.isSuccess ? symbol.data : <Skeleton className="w-[50px] h-[20px] rounded-full justify-self-end" />}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Token Standard</TableCell>
-                  <TableCell className="text-right">
-                    {isERC721.isSuccess ? (
-                      isERC721.data ? (
-                        "ERC721"
-                      ) : (
-                        "Unknown"
-                      )
-                    ) : (
-                      <Skeleton className="w-[60px] h-[20px] rounded-full justify-self-end" />
-                    )}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+                    </TableBody>
+                  </Table>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="details">
+                <AccordionTrigger className="hover:no-underline">Details</AccordionTrigger>
+                <AccordionContent className="pb-0">
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium">Owner</TableCell>
+                        <TableCell className="text-right">
+                          <span className="font-mono text-sm">
+                            {owner.isSuccess ? (
+                              <span className="font-mono text-sm">{shortenAddress(owner.data)}</span>
+                            ) : (
+                              <Skeleton className="w-[120px] h-[20px] rounded-full justify-self-end" />
+                            )}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Token ID</TableCell>
+                        <TableCell className="text-right">
+                          <span className="font-mono text-sm">#{tokenId}</span>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Collection</TableCell>
+                        <TableCell className="text-right">
+                          {name.isSuccess ? name.data : <Skeleton className="w-[100px] h-[20px] rounded-full justify-self-end" />}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Symbol</TableCell>
+                        <TableCell className="text-right">
+                          {symbol.isSuccess ? (
+                            symbol.data
+                          ) : (
+                            <Skeleton className="w-[50px] h-[20px] rounded-full justify-self-end" />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium">Token Standard</TableCell>
+                        <TableCell className="text-right">
+                          {isERC721.isSuccess ? (
+                            isERC721.data ? (
+                              "ERC721"
+                            ) : (
+                              "Unknown"
+                            )
+                          ) : (
+                            <Skeleton className="w-[60px] h-[20px] rounded-full justify-self-end" />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </div>

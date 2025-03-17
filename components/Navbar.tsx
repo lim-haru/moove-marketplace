@@ -37,7 +37,7 @@ export default function Navbar() {
                   <DropdownMenuItem key={index}>
                     <Link
                       href={path}
-                      className="text-gray-900 hover:text-blue-700 p-0 text-base font-semibold"
+                      className="text-gray-900 p-0 text-base font-semibold"
                       onClick={() => {
                         setOpenMenu(false)
                       }}
@@ -54,7 +54,7 @@ export default function Navbar() {
           <ul className="hidden md:flex flex-row font-medium space-x-8">
             {links.map(({ path, name }, index) => (
               <li key={index}>
-                <Link href={path} className="text-gray-900 hover:text-blue-700 p-0">
+                <Link href={path} className="text-gray-900 hover:font-semibold p-0">
                   {name}
                 </Link>
               </li>

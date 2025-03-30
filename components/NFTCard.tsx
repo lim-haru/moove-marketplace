@@ -59,6 +59,7 @@ export function NFTCard({ tokenId, isAuction }: { tokenId: bigint; isAuction?: b
               alt={metadata.name}
               width={300}
               height={250}
+              className="rounded-t-2xl"
             />
           ) : (
             <Skeleton className="w-[300px] h-[250px]" />

@@ -39,7 +39,7 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
         availableNFTList[i] = availableNFTList[availableNFTList.length - 1];
         availableNFTList.pop();
         return;
-      }    
+      }
     }
   }
 
@@ -116,9 +116,9 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     auction.ended = true;
     if (auction.highestBidder != address(0)) {
       _transfer(address(this), auction.highestBidder, _tokenId);
-        emit NFTAuctionEnded(_tokenId, auction.highestBidder, auction.highestBid);
+      emit NFTAuctionEnded(_tokenId, auction.highestBidder, auction.highestBid);
     } else {
-        emit NFTAuctionEnded(_tokenId, address(0), 0);
+      emit NFTAuctionEnded(_tokenId, address(0), 0);
     }
 
     // Remove _tokenId from auctionIds

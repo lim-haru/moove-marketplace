@@ -2,7 +2,7 @@ import { useAppKit } from "@reown/appkit/react"
 import { useAppKitAccount } from "@reown/appkit/react"
 import { useWriteContract } from "wagmi"
 import { Button } from "@/components/ui/button"
-import { abi } from "@/smart-contracts/artifacts/contracts/MooveNFT.sol/MooveNFT.json"
+import { abi } from "@/abis/MooveNFT"
 
 interface MarketplaceBuyButtonProps {
   tokenId: bigint

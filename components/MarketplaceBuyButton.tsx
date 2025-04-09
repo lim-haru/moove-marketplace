@@ -4,12 +4,12 @@ import { useWriteContract } from "wagmi"
 import { Button } from "@/components/ui/button"
 import { abi } from "@/abis/MooveNFT"
 
-interface MarketplaceBuyButtonProps {
+interface IProps {
   tokenId: bigint
   price: bigint
   isSaleEnabled: boolean
 }
-export default function MarketplaceBuyButton({ tokenId, price, isSaleEnabled }: MarketplaceBuyButtonProps) {
+export default function MarketplaceBuyButton({ tokenId, price, isSaleEnabled }: IProps) {
   const { open } = useAppKit()
   const { isConnected } = useAppKitAccount()
   const { writeContract } = useWriteContract()

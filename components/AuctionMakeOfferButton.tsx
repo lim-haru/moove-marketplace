@@ -8,33 +8,29 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form"
 import { Input } from "./ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { parseUnits, formatUnits } from "ethers"
+import { parseUnits } from "ethers"
+import { placeBidSchema, PlaceBidSchemaType } from "@/schemas/auction"
 
-interface AuctionMakeOfferButtonProps {
+interface IProps {
   tokenId: bigint
   currentPrice: bigint
   isAuctionEnabled: boolean
 }
-export default function AuctionMakeOfferButton({ tokenId, currentPrice, isAuctionEnabled }: AuctionMakeOfferButtonProps) {
+export default function AuctionMakeOfferButton({ tokenId, currentPrice, isAuctionEnabled }: IProps) {
   const { open } = useAppKit()
   const { isConnected } = useAppKitAccount()
   const { writeContract } = useWriteContract()
 
   const [isPending, startTransition] = useTransition()
 
-  const placeBidSchema = z.object({
-    bid: z.coerce.number().gt(Number(formatUnits(currentPrice, "ether")), "Your bid must be higher than the current price"),
-  })
-
-  const form = useForm<z.infer<typeof placeBidSchema>>({
-    resolver: zodResolver(placeBidSchema),
+  const form = useForm<PlaceBidSchemaType>({
+    resolver: zodResolver(placeBidSchema(currentPrice)),
     defaultValues: {
       bid: 0,
     },
   })
 
-  function onSubmit(values: z.infer<typeof placeBidSchema>) {
+  function onSubmit(values: PlaceBidSchemaType) {
     const bidWei = parseUnits(values.bid.toString(), "ether")
 
     startTransition(async () => {

@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react"
 
-interface CountdownProps {
+interface IProps {
   targetTimestamp: bigint
   size?: "small" | "large"
 }
 
-export default function Countdown({ targetTimestamp, size = "large" }: CountdownProps) {
+export default function Countdown({ targetTimestamp, size = "large" }: IProps) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,

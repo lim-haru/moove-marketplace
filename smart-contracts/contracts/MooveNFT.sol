@@ -68,10 +68,18 @@ contract MooveNFT is ERC721URIStorage, Ownable, ERC721Holder {
     Auction storage auction = auctions[_tokenId];
     require(auction.endTime == 0 || block.timestamp >= auction.endTime, "NFT is currently in auction");
 
+    uint256 price = tokenPrices[_tokenId];
+    uint256 refund = msg.value - price;
+
     _transfer(address(this), msg.sender, _tokenId);
     _removeFromAvailableList(_tokenId);
 
-    emit BoughtNFT(msg.sender, _tokenId, tokenPrices[_tokenId]);
+    // Refund excess payment if any
+    if (refund > 0) {
+      payable(msg.sender).transfer(refund);
+    }
+
+    emit BoughtNFT(msg.sender, _tokenId, price);
   }
 
   function createAuction(uint256 _tokenId, uint256 duration, uint256 startingPrice) external onlyOwner {

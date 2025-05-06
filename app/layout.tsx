@@ -6,6 +6,7 @@ import { headers } from "next/headers"
 import ContextProvider from "@/context"
 
 import Navbar from "@/components/Navbar"
+import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -69,6 +70,7 @@ export default async function RootLayout({
           <div className="mx-auto max-w-screen-xl flex flex-col px-8 xl:px-0 py-8">
             <div className="flex-grow">{children}</div>
           </div>
+          <Toaster />
         </ContextProvider>
       </body>
     </html>

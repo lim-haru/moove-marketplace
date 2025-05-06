@@ -88,7 +88,18 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
     functionName: "getAvailableNFTs",
   })
 
-  const isSaleEnabled = availableNFTs.isSuccess && availableNFTs.data.includes(tokenId)
+  const [isSaleEnabled, setIsSaleEnabled] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (availableNFTs.isSuccess) {
+      setIsSaleEnabled(availableNFTs.data.includes(tokenId))
+    }
+  }, [availableNFTs.isSuccess, availableNFTs.data, tokenId])
+
+  // This function is used to update the current status of the auction price when a new offer is made.
+  const handleBuySuccess = () => {
+    setIsSaleEnabled(false)
+  }
 
   const auction = useReadContract({
     abi,
@@ -99,6 +110,19 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
 
   const timestamp = Date.now() / 1000
   const isAuctionEnabled = isAuction && auction.isSuccess ? timestamp < auction.data.endTime : false
+
+  const [currentAuctionPrice, setCurrentAuctionPrice] = useState<bigint | undefined>()
+
+  useEffect(() => {
+    if (isAuction && auction.isSuccess) {
+      setCurrentAuctionPrice(auction.data.highestBid)
+    }
+  }, [isAuction, auction.isSuccess, auction.data])
+
+  // This function is used to update the current auction price state when a new bid is successfully placed.
+  const handleBidPlaced = (newBid: bigint) => {
+    setCurrentAuctionPrice(newBid)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -167,7 +191,7 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                     <Diamond className="h-6 w-6 text-primary" />
                     {(isAuction && auction.isSuccess) || (!isAuction && price.isSuccess) ? (
                       <span className="text-3xl font-bold">
-                        {isAuction ? formatEther(auction.data!.highestBid) : formatEther(price.data!)} ETH
+                        {currentAuctionPrice ? formatEther(currentAuctionPrice) : formatEther(price.data!)} ETH
                       </span>
                     ) : (
                       <Skeleton className="w-[130px] h-[36px] rounded-full bg-gray-200" />
@@ -190,11 +214,17 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                 (isAuction && auction.isSuccess ? (
                   <AuctionMakeOfferButton
                     tokenId={tokenId}
-                    currentPrice={auction.data.highestBid}
                     isAuctionEnabled={isAuctionEnabled}
+                    currentPrice={currentAuctionPrice ?? auction.data.highestBid}
+                    onBidPlaced={handleBidPlaced}
                   />
                 ) : (
-                  <MarketplaceBuyButton tokenId={tokenId} price={price.data} isSaleEnabled={isSaleEnabled} />
+                  <MarketplaceBuyButton
+                    tokenId={tokenId}
+                    price={price.data}
+                    isSaleEnabled={isSaleEnabled}
+                    onBuySuccess={handleBuySuccess}
+                  />
                 ))}
             </div>
 

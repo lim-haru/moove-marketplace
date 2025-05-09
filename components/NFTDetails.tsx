@@ -1,6 +1,6 @@
 "use client"
 
-import { useReadContract } from "wagmi"
+import { useAccount, useReadContract } from "wagmi"
 import { abi } from "@/abis/MooveNFT"
 import Image from "next/image"
 import { formatEther } from "viem"
@@ -24,6 +24,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   const pathname = usePathname()
   const isAuction = pathname.includes("auctions")
+  const { address, isConnected } = useAccount()
 
   const [metadata, setMetadata] = useState<NFTMetadata | null>(null)
 
@@ -47,6 +48,8 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
     functionName: "ownerOf",
     args: [tokenId],
   })
+
+  const isOwner = owner.isSuccess && isConnected ? owner.data === address : false
 
   const name = useReadContract({
     abi,
@@ -125,7 +128,7 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto p-0 md:px-4 md:py-8">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-4">
           <Card className="overflow-hidden border-0 bg-black/5 dark:bg-white/5">
@@ -158,7 +161,7 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
         <div className="space-y-6">
           <div>
             <div className="flex items-center justify-between mt-2">
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-[26px] sm:text-3xl font-bold">
                 {metadata?.name ? (
                   <>
                     {metadata.name} #{tokenId}
@@ -167,15 +170,22 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
                   <Skeleton className="w-[200px] h-[36px] rounded-full" />
                 )}
               </h1>
-              {isSaleEnabled || isAuctionEnabled ? (
-                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 mr-2">
-                  {isAuctionEnabled ? "On Auction" : "On Sale"}
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-red-500/10 text-red-500 mr-2">
-                  Off Sale
-                </Badge>
-              )}
+              <div className="flex flex-col sm:flex-row gap-1 sm:gap-0">
+                {isOwner && (
+                  <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 mr-2">
+                    Owner
+                  </Badge>
+                )}
+                {isSaleEnabled || isAuctionEnabled ? (
+                  <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-500 mr-2">
+                    {isAuctionEnabled ? "On Auction" : "On Sale"}
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-red-500/10 text-red-500 mr-2">
+                    Off Sale
+                  </Badge>
+                )}
+              </div>
             </div>
             <div className="mt-2 text-muted-foreground">
               {metadata?.description ? metadata.description : <Skeleton className="w-full h-[20px] rounded-full" />}

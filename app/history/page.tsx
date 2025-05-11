@@ -238,7 +238,9 @@ export default function HistoryPage() {
                           </div>
                           <div className="font-medium">
                             {event.name ? (
-                              `${event.name} #${event.args.tokenId}`
+                              <Link href={`/marketplace/${event.args.tokenId}`} className="hover:underline">
+                                {`${event.name} #${event.args.tokenId}`}
+                              </Link>
                             ) : (
                               <Skeleton className="w-[150px] h-[20px] rounded-full" />
                             )}
@@ -319,7 +321,9 @@ export default function HistoryPage() {
                           </div>
                           <div className="font-medium">
                             {event.name ? (
-                              `${event.name} #${event.args.tokenId}`
+                              <Link href={`/auctions/${event.args.tokenId}`} className="hover:underline">
+                                {`${event.name} #${event.args.tokenId}`}
+                              </Link>
                             ) : (
                               <Skeleton className="w-[150px] h-[20px] rounded-full" />
                             )}

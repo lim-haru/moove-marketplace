@@ -63,14 +63,14 @@ export default function HistoryPage() {
   useEffect(() => {
     if (!publicClient || !address) return
 
-    const fetchPurchaseEvents = async () => {
+    const fetchPurchaseEvents = async (fromBlock: bigint, toBlock: bigint) => {
       try {
         const logs = await publicClient.getLogs({
           address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
           event: parseAbiItem("event BoughtNFT(address indexed owner, uint256 indexed tokenId, uint256 price)"),
           args: { owner: address },
-          fromBlock: BigInt(0),
-          toBlock: "latest",
+          fromBlock: fromBlock,
+          toBlock: toBlock,
         })
 
         const logsWithDetails = await Promise.all(
@@ -103,20 +103,20 @@ export default function HistoryPage() {
           })
         )
 
-        setPurchaseEvents(logsWithDetails)
+        setPurchaseEvents((prev) => [...prev, ...logsWithDetails])
       } catch (error) {
         console.error("Error fetching purchase events:", error)
       }
     }
 
-    const fetchBidEvents = async () => {
+    const fetchBidEvents = async (fromBlock: bigint, toBlock: bigint) => {
       try {
         const logs = await publicClient.getLogs({
           address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
           event: parseAbiItem("event BidPlaced(uint256 indexed tokenId, address indexed bidder, uint256 bid)"),
           args: { bidder: address },
-          fromBlock: BigInt(0),
-          toBlock: "latest",
+          fromBlock: fromBlock,
+          toBlock: toBlock,
         })
 
         const logsWithDetails = await Promise.all(
@@ -153,14 +153,41 @@ export default function HistoryPage() {
           })
         )
 
-        setBidEvents(logsWithDetails)
+        setBidEvents((prev) => [...prev, ...logsWithDetails])
       } catch (error) {
         console.error("Error fetching bid events:", error)
       }
     }
 
-    fetchPurchaseEvents()
-    fetchBidEvents()
+    const fetchAllEventsInRange = async () => {
+      try {
+        setPurchaseEvents([])
+        setBidEvents([])
+        const currentBlock = await publicClient.getBlockNumber()
+        const chunkSize = BigInt(10000)
+
+        // Determine fromBlock based on the current network
+        let fromBlock: bigint
+        const chainId = publicClient.chain.id
+        if (chainId === 11155111) {
+          fromBlock = BigInt(7970498) // Sepolia
+        } else if (chainId === 31337) {
+          fromBlock = BigInt(0) // Hardhat/Localhost
+        } else {
+          throw `Unsupported chain ID for historical event fetching: ${chainId}.`
+        }
+
+        for (let startBlock = fromBlock; startBlock <= currentBlock; startBlock += chunkSize) {
+          const toBlock = startBlock + chunkSize - BigInt(1) > currentBlock ? currentBlock : startBlock + chunkSize - BigInt(1)
+          await fetchPurchaseEvents(startBlock, toBlock)
+          await fetchBidEvents(startBlock, toBlock)
+        }
+      } catch (error) {
+        console.error("Error fetching latest block or processing event ranges:", error)
+      }
+    }
+
+    fetchAllEventsInRange()
   }, [address, isConnected, publicClient])
 
   return (
@@ -202,6 +229,7 @@ export default function HistoryPage() {
                                 src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${event.image}`}
                                 alt={event.name || "NFT"}
                                 fill
+                                sizes="(100w) 100vw"
                                 className="object-cover"
                               />
                             ) : (
@@ -282,6 +310,7 @@ export default function HistoryPage() {
                                 src={`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${event.image}`}
                                 alt={event.name || "NFT"}
                                 fill
+                                sizes="(100w) 100vw"
                                 className="object-cover"
                               />
                             ) : (

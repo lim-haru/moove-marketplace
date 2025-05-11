@@ -102,6 +102,9 @@ export default function NFTDetails({ tokenId }: { tokenId: bigint }) {
   // This function is used to update the current status of the auction price when a new offer is made.
   const handleBuySuccess = () => {
     setIsSaleEnabled(false)
+    if (owner.refetch) {
+      owner.refetch()
+    }
   }
 
   const auction = useReadContract({
